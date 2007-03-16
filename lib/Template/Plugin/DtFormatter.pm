@@ -9,22 +9,60 @@ use Template::Exception;
 use DateTime;
 use DateTime::Format::Strptime;
 
-our $VERSION = "1.00";
+our $VERSION = "1.10";
 
 # Default formatters
 our $formatters = {
     sql         => DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S'),
     sql_date    => DateTime::Format::Strptime->new(pattern => '%Y-%m-%d'),
     human       => DateTime::Format::Strptime->new(pattern => '%d/%m/%Y, %H:%M'),
+    human2      => DateTime::Format::Strptime->new(pattern => '%d-%m-%Y, %H:%M'),
     human_date  => DateTime::Format::Strptime->new(pattern => '%d/%m/%Y'),
+    human_date2 => DateTime::Format::Strptime->new(pattern => '%d-%m-%Y'),
+    h           => DateTime::Format::Strptime->new(pattern => '%H'),
     hm          => DateTime::Format::Strptime->new(pattern => '%H:%M'),
     hms         => DateTime::Format::Strptime->new(pattern => '%H:%M:%S'),
+    year        => DateTime::Format::Strptime->new(pattern => '%Y'),
+    dm          => DateTime::Format::Strptime->new(pattern => '%d/%m'),
 };
 
 ########################################################################
 # Purpose    : Define the formatters at application start-up
 sub load {
     my ($class, $c) = @_;
+
+    return $class;
+}
+
+########################################################################
+# Purpose    : Almost now
+sub new {
+    my ($class, $c, @args) = @_;
+
+    if (@args > 0) {
+        my $params = $args[0];
+
+        # Allow to pass an user_formatters hashref for custom formatter
+        # (which can add to or override the existing ones)
+        if ( exists $params->{formatters} ) {
+            my $user_formatters = $params->{formatters};
+            die 'Formatters-must-be-hashref' if ref $user_formatters ne 'HASH';
+            for my $user_formatter ( keys %$user_formatters ) {
+                $formatters->{ $user_formatter } = $user_formatters->{ $user_formatter };
+            }
+        }
+
+        # Allow to pass a user_patterns hashref for custom Strptime patterns
+        if ( exists $params->{patterns} ) {
+            my $user_patterns = $params->{patterns};
+            die 'Pattern-must-be-hashref' if ref $user_patterns ne 'HASH';
+            for my $user_pattern ( keys %$user_patterns ) {
+                $formatters->{ $user_pattern } = DateTime::Format::Strptime->new(
+                    pattern => $user_patterns->{ $user_pattern }
+                );
+            }
+        }
+    }
 
     my $self = bless {
         _CONTEXT     => $c,
@@ -35,37 +73,19 @@ sub load {
 }
 
 ########################################################################
-# Purpose    : Accept additional formatters
-sub new {
-    my ($self, $c, %args) = @_;
-
-    # Allow to pass an user_formatters hashref for custom formatter
-    # (which can add to or override the existing ones)
-    if ( exists $args{user_formatters} ) {
-        my $user_formatters = $args{user_formatters};
-        die 'Formatters-must-be-hashref' if ref $user_formatters eq 'HASH';
-        for my $user_formatter( %$user_formatters ) {
-            $formatters->{ $user_formatter } = $user_formatters->{ $user_formatter };
-        }
-    }
-
-    return $self;
-}
-
-########################################################################
 # Puropse    : Format date and/or time depending on user format
 # Parameters : Datetime object, and string which speicifies the format
 # Returns    : Formatted string of the Datetime object
 sub format {
     my ($self, $dt, $format) = @_;
-    my ( $formatters ) = @$self{ qw/ _FORMATTERS /};
+    my ( $display_formatters ) = @$self{ qw/ _FORMATTERS /};
 
     if (!ref $dt) { $dt = DateTime->now(time_zone => 'UTC') }
 
     # Format only if the passed string and dt are valid, otherwise go on
-    if ( exists $formatters->{$format} && $dt ) {
+    if ( exists $display_formatters->{$format} && $dt ) {
         my $formatted_string =
-            $formatters->{$format}->format_datetime($dt);
+            $display_formatters->{$format}->format_datetime($dt);
 
         return $formatted_string;
     }
@@ -116,9 +136,30 @@ so that is the only dependency of this module.
     sql         => DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S'),
     sql_date    => DateTime::Format::Strptime->new(pattern => '%Y-%m-%d'),
     human       => DateTime::Format::Strptime->new(pattern => '%d/%m/%Y, %H:%M'),
+    human2      => DateTime::Format::Strptime->new(pattern => '%d-%m-%Y, %H:%M'),
     human_date  => DateTime::Format::Strptime->new(pattern => '%d/%m/%Y'),
+    human_date2 => DateTime::Format::Strptime->new(pattern => '%d-%m-%Y'),
+    h           => DateTime::Format::Strptime->new(pattern => '%H'),
     hm          => DateTime::Format::Strptime->new(pattern => '%H:%M'),
     hms         => DateTime::Format::Strptime->new(pattern => '%H:%M:%S'),
+    year        => DateTime::Format::Strptime->new(pattern => '%Y'),
+    dm          => DateTime::Format::Strptime->new(pattern => '%d/%m'),
+
+=head1 USER DEFINED FORMATTERS
+
+You can define the formatters (or override existing ones), in two ways. The first
+is to provide patterns for L<DateTime::Format::Strptime> using an hashref:
+
+    [% USE DtFormatter( patterns => { 'jazz' => '%H - %Y' } ) %]
+    [% DtFormatter.format(DateTime_object, 'jazz') %]
+
+You can also provide any valid DateTime format object. For instance, if you
+want an Excel-style date:
+
+    [% USE DtFormatter( formatters =>
+        { 'excel' => DateTime->Format->Excel->new() }
+    ) %]
+    [% DtFormatter.format(DateTime_object, 'excel') %]
 
 =head1 SEE ALSO
 

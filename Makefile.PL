@@ -5,7 +5,7 @@ WriteMakefile
           'NAME' => 'Template::Plugin::DtFormatter',
           'VERSION_FROM' => 'lib/Template/Plugin/DtFormatter.pm',
           'PREREQ_PM' => {
-                           'DateTime' => '0.36',
+                           'DateTime' => '0.32',
                            'DateTime::Format::Strptime' => '1.07',
                            'Template' => '2.15'
                          },

@@ -8,7 +8,7 @@ my %arguments = (
     module_name        => 'Template::Plugin::DtFormatter',
     requires           => {
         'Template'                    => 2.15,
-        'DateTime'         	      => 0.36,
+        'DateTime'         	      => 0.32,
         'DateTime::Format::Strptime'  => 1.0700,
     },
     build_requires      => {

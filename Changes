@@ -1,7 +1,8 @@
-Revision history for Perl extension Template::Plugin::Textile.
+Revision history for Perl extension Template::Plugin::DtFormatter.
 
-1.21  Thu Nov 30 2006
-    - doc & Changes fixes
+1.01  Fri Mar 16 2007
+    - New formatters
+    - Accept user-defined Strptime patterns
 
-1.20  Thu Nov 30 2006
+1.00  Thu Mar 15 2007
     - inital release
