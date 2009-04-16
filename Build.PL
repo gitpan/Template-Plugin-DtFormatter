@@ -7,9 +7,9 @@ my %arguments = (
     license            => 'perl',
     module_name        => 'Template::Plugin::DtFormatter',
     requires           => {
-        'Template'                    => 2.15,
-        'DateTime'         	      => 0.32,
-        'DateTime::Format::Strptime'  => 1.0700,
+        'Template'                    => 2.20,
+        'DateTime'         	          => 0.47,
+        'DateTime::Format::Strptime'  => 1.0900,
     },
     build_requires      => {
 #        'Test::Exception'   => 0

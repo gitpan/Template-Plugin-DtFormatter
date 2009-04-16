@@ -1,5 +1,10 @@
 Revision history for Perl extension Template::Plugin::DtFormatter.
 
+1.20  Thu Apr 16 2009
+    - New "pstrptime" argument to defined Strptime objects
+    - DEPRECATION: "patterns" argument to define Strptime patterns
+      (use "pstrptime")
+
 1.01  Fri Mar 16 2007
     - New formatters
     - Accept user-defined Strptime patterns

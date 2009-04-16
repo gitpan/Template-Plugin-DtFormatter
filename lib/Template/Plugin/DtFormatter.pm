@@ -9,7 +9,7 @@ use Template::Exception;
 use DateTime;
 use DateTime::Format::Strptime;
 
-our $VERSION = "1.10";
+our $VERSION = "1.20";
 
 # Default formatters
 our $formatters = {
@@ -35,7 +35,8 @@ sub load {
 }
 
 ########################################################################
-# Purpose    : Almost now
+# Purpose    : Constructor
+# Parameters : formatters hashref and/or patterns hashref
 sub new {
     my ($class, $c, @args) = @_;
 
@@ -52,13 +53,26 @@ sub new {
             }
         }
 
+        # DEPRECATED:
         # Allow to pass a user_patterns hashref for custom Strptime patterns
         if ( exists $params->{patterns} ) {
+            warn 'pattern is deprecated, use pstrptime - see Template::Plugin::DtFormatter documentation';
             my $user_patterns = $params->{patterns};
             die 'Pattern-must-be-hashref' if ref $user_patterns ne 'HASH';
             for my $user_pattern ( keys %$user_patterns ) {
                 $formatters->{ $user_pattern } = DateTime::Format::Strptime->new(
-                    pattern => $user_patterns->{ $user_pattern }
+                    pattern => $user_patterns->{ $user_pattern },
+                );
+            }
+        }
+
+        # Allow to pass hashref with Strptime parameters to build custom strptimes
+        if ( exists $params->{pstrptime} ) {
+            my $user_strptimes = $params->{pstrptime};
+            die 'strptime-must-be-hashref' if ref $user_strptimes ne 'HASH';
+            for my $user_strptime ( keys %$user_strptimes ) {
+                $formatters->{ $user_strptime } = DateTime::Format::Strptime->new(
+                    %{ $user_strptimes->{$user_strptime} }
                 );
             }
         }
@@ -148,18 +162,36 @@ so that is the only dependency of this module.
 =head1 USER DEFINED FORMATTERS
 
 You can define the formatters (or override existing ones), in two ways. The first
-is to provide patterns for L<DateTime::Format::Strptime> using an hashref:
+is to provide arguments for L<DateTime::Format::Strptime> constructur using an hashref:
 
-    [% USE DtFormatter( patterns => { 'jazz' => '%H - %Y' } ) %]
+    [% USE DtFormatter(
+        pstrptime => {
+            'jazz' => {
+                locale  => 'it_IT',
+                pattern => '%d %B %Y'
+            },
+            'second_hour' => {
+                pattern => '%S:%H'
+            }
+        }
+    ) %]
     [% DtFormatter.format(DateTime_object, 'jazz') %]
 
 You can also provide any valid DateTime format object. For instance, if you
-want an Excel-style date:
+want an Excel-style date and have a C<DateTime::Format::Excel> object
+in C<excel_formatter_obj>:
 
     [% USE DtFormatter( formatters =>
-        { 'excel' => DateTime->Format->Excel->new() }
+        { 'excel' => excel_formatter_obj }
     ) %]
     [% DtFormatter.format(DateTime_object, 'excel') %]
+
+The old C<formatters> parameter is deprecated, issues a warning, and will be
+removed in version 2.00.
+
+=head1 TODO
+
+Tests.
 
 =head1 SEE ALSO
 

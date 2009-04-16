@@ -1,23 +1,21 @@
 ---
 name: Template-Plugin-DtFormatter
-version: 1.10
+version: 1.20
 author:
   - 'Michele Beltrame, C<mb@italpro.net>.'
-abstract: |-
-  Easily create formatted string from DateTime
-  objects
+abstract: "Easily create formatted string from DateTime\nobjects"
 license: perl
-resources:
-  license: http://dev.perl.org/licenses/
 requires:
-  DateTime: 0.32
-  DateTime::Format::Strptime: 1.07
-  Template: 2.15
-provides:
-  Template::Plugin::DtFormatter:
-    file: lib/Template/Plugin/DtFormatter.pm
-    version: 1.10
-generated_by: Module::Build version 0.2805
+  DateTime: 0.47
+  DateTime::Format::Strptime: 1.09
+  Template: 2.2
+generated_by: Module::Build version 0.32
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2
+provides:
+  Template::Plugin::DtFormatter:
+    file: lib/Template/Plugin/DtFormatter.pm
+    version: 1.20
+resources:
+  license: ~

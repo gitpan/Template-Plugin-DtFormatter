@@ -1,8 +1,7 @@
-Changes
-Makefile.PL
 Build.PL
-MANIFEST
-README
-t/Template-Plugin-DtFormatter.t
+Changes
 lib/Template/Plugin/DtFormatter.pm
-META.yml                                 Module meta-data (added by MakeMaker)
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+README
